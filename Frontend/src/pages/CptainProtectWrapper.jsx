@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import { UserDataContext } from "../context/UserContext";
+import { CaptainDataContext } from "../context/CaptainContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const UserProtectWrapper = ({ children }) => {
+const CaptainProtectWrapper = ({ children }) => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
-    const { user, setUser } = useContext(UserDataContext);
+    const { captain, setCaptain } = useContext(CaptainDataContext);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!token) {
-            navigate("/user-login");
+            navigate("/captain-login");
             return;
         }
 
-        const fetchUserProfile = async () => {
+        const fetchCaptainData = async () => {
             try {
                 const response = await axios.get(
-                    `${import.meta.env.VITE_BASE_URL}/users/profile`,
+                    `${import.meta.env.VITE_BASE_URL}/captains/profile`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -27,18 +27,18 @@ const UserProtectWrapper = ({ children }) => {
                 );
 
                 if (response.status === 200) {
-                    setUser(response.data.user);
-                    setIsLoading(false);
+                    setCaptain(response.data.captain);
                 }
             } catch (error) {
-                console.error("Error fetching user profile:", error);
-                localStorage.removeItem("token");
-                navigate("/user-login");
+                console.error("Error fetching captain data:", error);
+                navigate("/captain-login");
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchUserProfile();
-    }, [token, navigate, setUser]);
+        fetchCaptainData();
+    }, [token, navigate, setCaptain]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -47,4 +47,4 @@ const UserProtectWrapper = ({ children }) => {
     return <>{children}</>;
 };
 
-export default UserProtectWrapper;
+export default CaptainProtectWrapper;
