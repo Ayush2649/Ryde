@@ -8,8 +8,10 @@ const Home = () => {
     const [pickUp, setPickUp] = useState('');
     const [destination, setDestination] = useState('');
     const [panelOpen, setPanelOpen] = useState(false);
+    const vehiclePanelRef = useRef(null);
     const panelRef = useRef(null);
     const panelCloseRef = useRef(null);
+    const [vehiclePanel, setVehiclePanel] = useState(false);
 
     const submitHandler = (e) => {
         e.preventDefault();
@@ -36,6 +38,18 @@ const Home = () => {
             })
         }
     }, [panelOpen])
+
+    useGSAP(function() {
+        if(vehiclePanel){
+            gsap.to(vehiclePanelRef.current, {
+                transform: 'translateY(0)'
+            })
+        } else {
+            gsap.to(vehiclePanelRef.current, {
+                transform: 'translateY(100%)'
+            })
+        }
+    }, [vehiclePanel])
 
     return (
         <div className="h-screen relative overflow-hidden">
@@ -75,10 +89,10 @@ const Home = () => {
                     </form>
                 </div>
                 <div ref={panelRef} className="bg-white h-0">
-                    <LocationSearchPanel />
+                    <LocationSearchPanel vehiclePanel = {vehiclePanel} setVehiclePanel={setVehiclePanel}/>
                 </div>
             </div>
-            <div className="fixed z-10 bottom-0 bg-white w-full px-3 py-8 translate-y-full">
+            <div ref={vehiclePanelRef} className="fixed z-10 bottom-0 bg-white w-full px-3 py-8 translate-y-full">
                 <h4 className="text-2xl font-semibold mb-5">Choose a Vehicle</h4>
                 <div className="flex mb-2 border-2 active:border-black rounded-xl w-full items-center p-3 justify-between">
                     <img className="h-14" src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_638,w_956/v1555367349/assets/d7/3d4b80-1a5f-4a8b-ac2b-bf6c0810f050/original/Final_XL.png" alt="" />
