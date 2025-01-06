@@ -13,9 +13,10 @@ const LocationSearchPanel = (props ) => {
     return (
         <div>
             {
-                locations.map(function(elem){
-                    return <div onClick={() => {
+                locations.map(function(elem, idx){
+                    return <div key = {idx} onClick={() => {
                         props.setVehiclePanel(true);
+                        props.setPanelOpen(false);
                     }}
                     className='border-2 p-3 border-gray-50 active:border-black rounded-xl gap-4 flex items-center my-2 justify-start'>
                     <h2 className='bg-[#eee] h-10 w-10 flex items-center justify-center rounded-full'><i className="ri-map-pin-fill"></i></h2>
