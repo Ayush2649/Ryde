@@ -6,6 +6,7 @@ import LocationSearchPanel from "../components/LocationSearchPanel";
 import VehiclePanel from "../components/VehiclePanel";
 import ConfirmRide from "../components/ConfirmRide";
 import LookingForDriver from "../components/LookingForDriver";
+import WaitingForDriver from "../components/WaitingForDriver";
 
 const Home = () => {
     const [pickUp, setPickUp] = useState("");
@@ -14,12 +15,14 @@ const Home = () => {
     const [vehiclePanel, setVehiclePanel] = useState(false); // Ensure default is false
     const [confirmRidePanel, setConfirmRidePanel] = useState(false);
     const [vehicleFound, setVehicleFound] = useState(false);
+    const [waitingForDriver, setWaitingForDriver] = useState(false);
 
     const panelRef = useRef(null);
     const panelCloseRef = useRef(null);
     const vehiclePanelRef = useRef(null);
     const confirmRidePanelRef = useRef(null);
     const vehicleFoundRef = useRef(null);
+    const waitingForDriverRef = useRef(null);
 
     const submitHandler = (e) => {
         e.preventDefault();
@@ -80,6 +83,18 @@ const Home = () => {
             });
         }
     }, [vehicleFound]);
+
+    useGSAP(() => {
+        if (waitingForDriver) {
+            gsap.to(waitingForDriverRef.current, {
+                transform: "translateY(0)",
+            });
+        } else {
+            gsap.to(waitingForDriverRef.current, {
+                transform: "translateY(100%)",
+            });
+        }
+    }, [waitingForDriver]);
 
     return (
         <div className="h-screen relative overflow-hidden">
@@ -151,7 +166,13 @@ const Home = () => {
                 ref={vehicleFoundRef}
                 className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12 translate-y-full"
             >
-                <LookingForDriver setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel}/>
+                <LookingForDriver setVehicleFound={setVehicleFound}/>
+            </div>
+            <div
+                ref={waitingForDriverRef}
+                className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12"
+            >
+                <WaitingForDriver setWaitingForDriver={setWaitingForDriver}/>
             </div>
         </div>
     );
