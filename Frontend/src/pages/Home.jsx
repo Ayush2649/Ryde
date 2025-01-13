@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import axios from "axios";
@@ -8,6 +8,9 @@ import VehiclePanel from "../components/VehiclePanel";
 import ConfirmRide from "../components/ConfirmRide";
 import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
+import { SocketContext } from "../context/SocketContext";
+import { useContext } from "react";
+import { UserDataContext } from "../context/UserContext";
 
 const Home = () => {
     const [pickup, setPickup] = useState("");
@@ -21,6 +24,7 @@ const Home = () => {
     const [ destinationSuggestions, setDestinationSuggestions ] = useState([])
     const [ activeField, setActiveField ] = useState(null)
     const [fare, setFare] = useState({})
+    const [vehicleType, setVehicleType] = useState(null);
 
     const panelRef = useRef(null);
     const panelCloseRef = useRef(null);
@@ -28,6 +32,13 @@ const Home = () => {
     const confirmRidePanelRef = useRef(null);
     const vehicleFoundRef = useRef(null);
     const waitingForDriverRef = useRef(null);
+
+    const {socket} = useContext(SocketContext)
+    const {user} = useContext(UserDataContext)
+
+    useEffect(() => {
+        socket.emit("join", {userType : "user", userId : user._id})
+    }, [user])
 
     const fetchSuggestions = async (input, type) => {
         try {
@@ -159,11 +170,26 @@ const Home = () => {
           );
       
           console.log(response.data);
+          setFare(response.data.fare);
         } catch (error) {
           console.error("Error fetching fare:", error);
           alert("Failed to fetch trip details. Please try again later.");
         }
       } 
+
+      async function createRide() {
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+            pickup,
+            destination,
+            vehicleType
+        }, {
+            headers : {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+
+        console.log(response.data);
+      }
 
     return (
         <div className="h-screen relative overflow-hidden">
@@ -225,13 +251,25 @@ const Home = () => {
                 </div>
             </div>
             <div ref={vehiclePanelRef} className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12 translate-y-full" >
-                <VehiclePanel fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+                <VehiclePanel setVehicleType={setVehicleType} fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
             </div>
             <div ref={confirmRidePanelRef} className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12 translate-y-full">
-                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound}/>
+                <ConfirmRide 
+                    createRide={createRide}
+                    pickup = {pickup}
+                    destination = {destination}
+                    fare = {fare}
+                    vehicleType = {vehicleType}
+                    setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound}/>
             </div>
             <div ref={vehicleFoundRef} className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12 translate-y-full">
-                <LookingForDriver setVehicleFound={setVehicleFound}/>
+                <LookingForDriver 
+                 createRide={createRide}
+                 pickup = {pickup}
+                 destination = {destination}
+                 fare = {fare}
+                 vehicleType = {vehicleType}
+                 setVehicleFound={setVehicleFound}/>
             </div>
             <div ref={waitingForDriverRef} className="fixed z-10 bottom-0 bg-white w-full px-3 py-6 pt-12 translate-y-full" >
                 <WaitingForDriver setWaitingForDriver={setWaitingForDriver}/>
