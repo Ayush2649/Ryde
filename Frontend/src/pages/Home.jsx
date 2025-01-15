@@ -216,7 +216,7 @@ const Home = () => {
                     </h5>
                     <h4 className="text-3xl font-bold">Find a trip</h4>
                     <form onSubmit={submitHandler}>
-                        <div className="line absolute h-16 w-1 top-[40%] -translate-y-1/2 left-10 bg-gray-700 rounded-full"></div>
+                        <div className="line absolute h-16 w-1 top-[52%] -translate-y-1/2 left-10 bg-gray-700 rounded-full"></div>
                         <input
                             onClick={() => setPanelOpen(true)}
                             value={pickup}
